@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class rotator : MonoBehaviour {
+public class Rotator : MonoBehaviour {
 
 	void Update() {
 

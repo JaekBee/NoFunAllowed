@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
-public class playerController : MonoBehaviour {
+public class GameController : MonoBehaviour {
 
 	public Text countText;
 	public Text winText;
