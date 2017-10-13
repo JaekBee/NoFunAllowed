@@ -20,12 +20,12 @@ public class Third_Person_Controller : MonoBehaviour
 
     public float speed = 5.0f;
     public float turnSpeed = 3.0f;
-
     public float walkSpeed = 2.0f;
     public float runSpeed = 15.0f;
     public float gravity = 20.0f;
     public float jumpSpeed = 8.0F;
-    public float wallSlide = 15.0f;
+    public float wallSlide = 1.0f;
+    public float timer = 1.0f;
 
     private bool spraying = false;
 
@@ -61,6 +61,7 @@ public class Third_Person_Controller : MonoBehaviour
         _animation = GetComponent<Animation>();
         _characterState = CharacterState.Idle;
         _characterController = GetComponent<CharacterController>();
+        _jumpState = JumpState.NotJumping;
     }
 
     void Update()
@@ -130,7 +131,9 @@ public class Third_Person_Controller : MonoBehaviour
 
         if (_characterController.isGrounded)
         {
-            updateJumpState(JumpState.NotJumping); // gotta find a way to wait before setting this
+            //timer -= Time.deltaTime;
+            
+            //updateJumpState(JumpState.NotJumping); // gotta find a way to wait before setting this
             Vector3 forward = _camera.transform.TransformDirection(Vector3.forward);
             forward.y = 0;
             forward = forward.normalized;
@@ -152,6 +155,19 @@ public class Third_Person_Controller : MonoBehaviour
             {
                 updateJumpState(JumpState.Jump);
                 moveDirection.y = jumpSpeed;
+            }
+
+            if (Input.GetButtonDown("Jump") && Input.GetButtonDown("Horizontal") && Input.GetAxisRaw("Horizontal") > 0)
+            {
+                updateJumpState(JumpState.SideJumping);
+                moveDirection.y = jumpSpeed;
+                moveDirection.x = 3.0f * forward.z;
+            }
+            else if (Input.GetButtonDown("Jump") && Input.GetButtonDown("Horizontal") && Input.GetAxisRaw("Horizontal") < 0)
+            {
+                updateJumpState(JumpState.SideJumping);
+                moveDirection.y = jumpSpeed;
+                moveDirection.x = -3.0f * forward.z;
             }
         }
 
@@ -229,29 +245,37 @@ public class Third_Person_Controller : MonoBehaviour
         if (newJumpState == JumpState.SpinJumping)
         {
             _jumpState = JumpState.SpinJumping;
+            jumpSpeed = 18.0f;
         } else if (newJumpState == JumpState.SideJumping)
         {
             _jumpState = JumpState.SideJumping;
+            jumpSpeed = 12.0f;
         } else if (newJumpState == JumpState.WallJumping)
         {
             _jumpState = JumpState.WallJumping;
+            jumpSpeed = 12.0f;
         } else if (newJumpState == JumpState.NotJumping)
         {
             _jumpState = JumpState.NotJumping;
+            jumpSpeed = 10.0f;
         } else if (newJumpState == JumpState.Jump)
         {
             if(_jumpState == JumpState.NotJumping)
             {
                 _jumpState = JumpState.SingleJumping;
+                jumpSpeed = 8.0f;
             } else if(_jumpState == JumpState.SingleJumping)
             {
                 _jumpState = JumpState.DoubleJumping;
+                jumpSpeed = 12.0f;
             } else if (_jumpState == JumpState.DoubleJumping)
             {
                 _jumpState = JumpState.TripleJumping;
+                jumpSpeed = 18.0f;
             } else if (_jumpState == JumpState.TripleJumping)
             {
                 _jumpState = JumpState.SingleJumping;
+                jumpSpeed = 8.0f;
             }
         }
     }
@@ -261,7 +285,6 @@ public class Third_Person_Controller : MonoBehaviour
         // finds when collider hits a wall while jumping
         if (!_characterController.isGrounded && collider.normal.y < 0.1f)
         {
-            Debug.DrawRay(collider.point, collider.normal, Color.red, 1.5f);
 
             if (Input.GetButtonDown("Jump"))
             {
